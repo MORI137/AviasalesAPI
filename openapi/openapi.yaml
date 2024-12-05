@@ -1,10 +1,9 @@
 openapi: 3.0.3
 info:
-  title: OZON Marketplace API
-  description: API for managing products, users, orders, and categories in the OZON marketplace.
+  title: Aviasales API
   version: 1.0.0
 servers:
-  - url: https://ozon.api/v1
+  - url: https://aviasales.api/v1
 tags:
 
 paths:
