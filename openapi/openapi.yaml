@@ -1,0 +1,2102 @@
+openapi: 3.0.3
+info:
+  title: OZON Marketplace API
+  description: API for managing products, users, orders, and categories in the OZON marketplace.
+  version: 1.0.0
+servers:
+  - url: https://ozon.api/v1
+tags:
+
+paths:
+  /flights:
+    get:
+      tags: 
+        - Flights
+      summary: Get a list of flights
+      description: Retrieve a list of flights with optional filtering, sorting, and pagination.
+      parameters:
+        - name: departure_city
+          in: query
+          description: Filter flights by departure city.
+          required: false
+          schema:
+            type: string
+        - name: arrival_city
+          in: query
+          description: Filter flights by arrival city.
+          required: false
+          schema:
+            type: string
+        - name: airline
+          in: query
+          description: Filter flights by airline.
+          required: false
+          schema:
+            type: string
+        - name: departure_date_from
+          in: query
+          description: Filter flights departing after this date.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: departure_date_to
+          in: query
+          description: Filter flights departing before this date.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: price_min
+          in: query
+          description: Filter flights with a minimum price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: price_max
+          in: query
+          description: Filter flights with a maximum price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: page
+          in: query
+          description: Page number for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of flights per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of flights
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of flights available for the given filters.
+                  page:
+                    type: integer
+                    description: Current page number.
+                  page_size:
+                    type: integer
+                    description: Number of flights per page.
+                  flights:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Flight'
+        '400':
+          description: Invalid query parameters.
+    post:
+      summary: Create a new flight
+      tags: 
+        - Flights
+      description: Create a new flight with all required fields.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flight'
+      responses:
+        '201':
+          description: Flight successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '400':
+          description: Invalid request body.
+
+  /flights/{flight_id}:
+    get:
+      summary: Get flight details by ID
+      tags: 
+        - Flights
+      description: Retrieve detailed information about a specific flight using its unique ID.
+      parameters:
+        - name: flight_id
+          in: path
+          description: Unique identifier for the flight.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flight details successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '404':
+          description: Flight not found.
+    put:
+      summary: Update an existing flight
+      tags: 
+        - Flights
+      description: Update flight details with the provided information.
+      parameters:
+        - name: flight_id
+          in: path
+          description: Unique identifier for the flight to be updated.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Flight'
+      responses:
+        '200':
+          description: Flight details successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Flight'
+        '400':
+          description: Invalid request body or flight ID.
+        '404':
+          description: Flight not found.
+    delete:
+      summary: Delete a flight
+      tags: 
+        - Flights
+      description: Delete a specific flight by its unique ID.
+      parameters:
+        - name: flight_id
+          in: path
+          description: Unique identifier for the flight to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Flight successfully deleted.
+        '404':
+          description: Flight not found.
+
+  /flights/search:
+    get:
+      summary: Search for flights based on various filters
+      tags: 
+        - Flights
+      description: Search flights by departure city, arrival city, airline, dates, and price range.
+      parameters:
+        - name: departure_city
+          in: query
+          description: Filter by departure city.
+          required: false
+          schema:
+            type: string
+        - name: arrival_city
+          in: query
+          description: Filter by arrival city.
+          required: false
+          schema:
+            type: string
+        - name: airline
+          in: query
+          description: Filter by airline.
+          required: false
+          schema:
+            type: string
+        - name: departure_date_from
+          in: query
+          description: Filter by departure date range.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: departure_date_to
+          in: query
+          description: Filter by departure date range.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: price_min
+          in: query
+          description: Filter by minimum price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: price_max
+          in: query
+          description: Filter by maximum price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: page
+          in: query
+          description: Page number for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of flights per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of flights matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of flights matching the search criteria.
+                  page:
+                    type: integer
+                    description: Current page number.
+                  page_size:
+                    type: integer
+                    description: Number of flights per page.
+                  flights:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Flight'
+        '400':
+          description: Invalid query parameters.
+          
+  /flights/{flight_id}/availability:
+    get:
+      summary: Check the availability of seats for a flight
+      tags: 
+        - Flights
+      description: Check the number of available seats on a flight for booking.
+      parameters:
+        - name: flight_id
+          in: path
+          description: Unique identifier for the flight.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Available seats successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available_seats:
+                    type: integer
+                    description: Number of available seats for the flight.
+        '404':
+          description: Flight not found.
+
+  /users:
+    get:
+      summary: Get a list of users
+      description: Retrieve a list of users with optional filtering, pagination, and sorting.
+      tags:
+        - Users
+      parameters:
+        - name: name
+          in: query
+          description: Filter users by name.
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          description: Filter users by email.
+          required: false
+          schema:
+            type: string
+        - name: role
+          in: query
+          description: Filter users by role (admin, user, etc.).
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page number for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of users per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of users available for the given filters.
+                  page:
+                    type: integer
+                    description: Current page number.
+                  page_size:
+                    type: integer
+                    description: Number of users per page.
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid query parameters.
+
+    post:
+      summary: Create a new user
+      description: Create a new user with the provided details.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request body.
+
+  /users/{user_id}:
+    get:
+      summary: Get user details by ID
+      description: Retrieve detailed information about a specific user using their unique ID.
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          description: Unique identifier for the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User details successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found.
+
+    put:
+      summary: Update an existing user
+      description: Update user details with the provided information.
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          description: Unique identifier for the user to be updated.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User details successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid request body or user ID.
+        '404':
+          description: User not found.
+
+    delete:
+      summary: Delete a user
+      description: Delete a specific user by their unique ID.
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          description: Unique identifier for the user to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User successfully deleted.
+        '404':
+          description: User not found.
+
+  /users/{user_id}/profile:
+    get:
+      summary: Get user's profile information
+      description: Retrieve the profile information for a specific user.
+      tags:
+        - Users
+      parameters:
+        - name: user_id
+          in: path
+          description: Unique identifier for the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User profile successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found.
+
+  /users/login:
+    post:
+      summary: User login
+      description: Allows a user to log in using their credentials.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: User's email address.
+                password:
+                  type: string
+                  description: User's password.
+      responses:
+        '200':
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Authentication token for the user.
+        '401':
+          description: Invalid credentials.
+
+  /users/logout:
+    post:
+      summary: User logout
+      description: Logs out the user by invalidating their session or token.
+      tags:
+        - Users
+      responses:
+        '200':
+          description: User successfully logged out.
+        '401':
+          description: User is not authenticated.
+
+
+    
+
+  /bookings:
+    get:
+      summary: Get a list of bookings
+      description: Retrieve a list of bookings with optional filtering, sorting, and pagination.
+      tags:
+        - Booking
+      parameters:
+        - name: user_id
+          in: query
+          description: Filter bookings by user ID.
+          required: false
+          schema:
+            type: string
+        - name: flight_id
+          in: query
+          description: Filter bookings by flight ID.
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter bookings by status (confirmed, cancelled, pending).
+          required: false
+          schema:
+            type: string
+        - name: booking_date_from
+          in: query
+          description: Filter bookings by a start date for the booking date.
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: booking_date_to
+          in: query
+          description: Filter bookings by an end date for the booking date.
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: total_price_min
+          in: query
+          description: Filter bookings with a minimum total price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: total_price_max
+          in: query
+          description: Filter bookings with a maximum total price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: status_order
+          in: query
+          description: Sort the results by booking status (confirmed, cancelled, pending).
+          required: false
+          schema:
+            type: string
+            enum:
+              - confirmed
+              - cancelled
+              - pending
+        - name: sort_by
+          in: query
+          description: Sort the results by a field (e.g., booking_date, total_price).
+          required: false
+          schema:
+            type: string
+            enum:
+              - booking_date
+              - total_price
+        - name: sort_order
+          in: query
+          description: Sort order for the results.
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: page
+          in: query
+          description: Page number for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of bookings per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of bookings based on the given filters and pagination.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of bookings available for the given filters.
+                  page:
+                    type: integer
+                    description: Current page number.
+                  page_size:
+                    type: integer
+                    description: Number of bookings per page.
+                  bookings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+        '400':
+          description: Invalid query parameters.
+        '404':
+          description: No bookings found matching the given filters.
+
+    post:
+      summary: Create a new booking
+      description: This endpoint allows users to create a new booking by providing necessary details.
+      tags:
+        - Booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: ID of the user making the booking.
+                flight_id:
+                  type: string
+                  description: ID of the flight to be booked.
+                total_price:
+                  type: number
+                  format: float
+                  description: Total price for the booking.
+                status:
+                  type: string
+                  description: Status of the booking (e.g., confirmed, pending, cancelled).
+                  enum:
+                    - confirmed
+                    - cancelled
+                    - pending
+                booking_date:
+                  type: string
+                  format: date-time
+                  description: Date and time when the booking was made.
+                passenger_details:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      passenger_name:
+                        type: string
+                        description: Name of the passenger.
+                      passenger_type:
+                        type: string
+                        description: Type of passenger (e.g., adult, child).
+                      seat_preference:
+                        type: string
+                        description: Passenger's seat preference.
+      responses:
+        '201':
+          description: Booking successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Invalid request body or missing required fields.
+
+  /bookings/search:
+    get:
+      summary: Search bookings with multiple filters
+      description: Search for bookings based on a combination of filters (user, flight, status, price, etc.).
+      tags:
+        - Booking
+      parameters:
+        - name: user_id
+          in: query
+          description: Filter bookings by user ID.
+          required: false
+          schema:
+            type: string
+        - name: flight_id
+          in: query
+          description: Filter bookings by flight ID.
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter bookings by status.
+          required: false
+          schema:
+            type: string
+            enum:
+              - confirmed
+              - cancelled
+              - pending
+        - name: booking_date_from
+          in: query
+          description: Filter bookings by start date for booking date.
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: booking_date_to
+          in: query
+          description: Filter bookings by end date for booking date.
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: total_price_min
+          in: query
+          description: Filter bookings with a minimum total price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: total_price_max
+          in: query
+          description: Filter bookings with a maximum total price.
+          required: false
+          schema:
+            type: number
+            format: float
+        - name: status_order
+          in: query
+          description: Sort bookings by status order (confirmed, cancelled, pending).
+          required: false
+          schema:
+            type: string
+            enum:
+              - confirmed
+              - cancelled
+              - pending
+        - name: sort_by
+          in: query
+          description: Sort the results by a field.
+          required: false
+          schema:
+            type: string
+            enum:
+              - booking_date
+              - total_price
+        - name: sort_order
+          in: query
+          description: Sort order for the results.
+          required: false
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+        - name: page
+          in: query
+          description: Page number for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          description: Number of bookings per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: A list of bookings matching the search filters.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of bookings found based on search filters.
+                  bookings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Booking'
+        '400':
+          description: Invalid query parameters.
+
+  /bookings/{booking_id}:
+    put:
+      summary: Update an existing booking
+      description: This endpoint allows users to update details of an existing booking, such as price, status, or passenger details.
+      tags:
+        - Booking
+      parameters:
+        - name: booking_id
+          in: path
+          description: Unique identifier for the booking to be updated.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                total_price:
+                  type: number
+                  format: float
+                  description: Updated total price for the booking.
+                status:
+                  type: string
+                  description: Updated status of the booking (e.g., confirmed, pending, cancelled).
+                  enum:
+                    - confirmed
+                    - cancelled
+                    - pending
+                passenger_details:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      passenger_name:
+                        type: string
+                        description: Name of the passenger.
+                      passenger_type:
+                        type: string
+                        description: Type of passenger (e.g., adult, child).
+                      seat_preference:
+                        type: string
+                        description: Passenger's seat preference.
+      responses:
+        '200':
+          description: Booking successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Invalid request body or booking ID.
+        '404':
+          description: Booking not found.
+
+    delete:
+      summary: Delete an existing booking
+      description: This endpoint allows users to delete a booking by its ID.
+      tags:
+        - Booking
+      parameters:
+        - name: booking_id
+          in: path
+          description: Unique identifier for the booking to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Booking successfully deleted.
+        '400':
+          description: Invalid booking ID provided.
+        '404':
+          description: Booking not found.
+
+  /payments:
+    post:
+      summary: Create a new payment
+      description: This endpoint allows users to make a payment for a booking.
+      tags:
+        - Payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                booking_id:
+                  type: string
+                  description: Booking identifier for the booking that the payment is being made for.
+                amount:
+                  type: number
+                  format: float
+                  description: Amount paid for the booking.
+                payment_method:
+                  type: string
+                  description: Payment method (e.g., Credit Card, E-wallet).
+                payment_status:
+                  type: string
+                  description: Payment status (e.g., Success, Failed).
+                  enum:
+                    - Success
+                    - Failed
+      responses:
+        '201':
+          description: Payment successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid payment data or missing required fields.
+        '404':
+          description: Booking not found.
+
+  /payments/{payment_id}:
+    get:
+      summary: Get payment details
+      description: This endpoint retrieves the details of a specific payment by its ID.
+      tags:
+        - Payment
+      parameters:
+        - name: payment_id
+          in: path
+          description: Unique identifier for the payment.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '404':
+          description: Payment not found.
+
+    put:
+      summary: Update a payment
+      description: This endpoint allows users to update payment details (e.g., payment status, amount).
+      tags:
+        - Payment
+      parameters:
+        - name: payment_id
+          in: path
+          description: Unique identifier for the payment.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                  format: float
+                  description: Updated amount paid.
+                payment_status:
+                  type: string
+                  description: Updated payment status (e.g., Success, Failed).
+                  enum:
+                    - Success
+                    - Failed
+      responses:
+        '200':
+          description: Payment successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid payment data or payment ID.
+        '404':
+          description: Payment not found.
+
+    delete:
+      summary: Delete a payment
+      description: This endpoint allows users to delete a payment by its ID.
+      tags:
+        - Payment
+      parameters:
+        - name: payment_id
+          in: path
+          description: Unique identifier for the payment to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Payment successfully deleted.
+        '400':
+          description: Invalid payment ID.
+        '404':
+          description: Payment not found.
+
+  /payments/search:
+    get:
+      summary: Search and filter payments
+      description: This endpoint allows users to search and filter payments based on various criteria like booking_id, amount, payment_status, and date range.
+      tags:
+        - Payment
+      parameters:
+        - name: booking_id
+          in: query
+          description: Filter payments by booking ID.
+          required: false
+          schema:
+            type: string
+        - name: payment_status
+          in: query
+          description: Filter payments by payment status (e.g., "Success", "Failed").
+          required: false
+          schema:
+            type: string
+            enum:
+              - Success
+              - Failed
+        - name: start_date
+          in: query
+          description: Start date for payment date range (YYYY-MM-DD).
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          description: End date for payment date range (YYYY-MM-DD).
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          description: The page number for pagination.
+          required: false
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: The number of items per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of payments matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of payments matching the criteria.
+                  payments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Payment'
+        '400':
+          description: Invalid query parameters.  
+
+  /airports:
+    post:
+      summary: Create a new airport
+      description: This endpoint allows users to add a new airport to the system.
+      tags:
+        - Airport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                airport_name:
+                  type: string
+                  description: Name of the airport.
+                city:
+                  type: string
+                  description: City where the airport is located.
+                country:
+                  type: string
+                  description: Country where the airport is located.
+                IATA_code:
+                  type: string
+                  description: IATA code for the airport.
+      responses:
+        '201':
+          description: Airport successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airport'
+        '400':
+          description: Invalid airport data.
+
+  /airports/{airport_id}:
+    get:
+      summary: Get airport details
+      description: This endpoint retrieves the details of a specific airport by its ID.
+      tags:
+        - Airport
+      parameters:
+        - name: airport_id
+          in: path
+          description: Unique identifier for the airport.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Airport details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airport'
+        '404':
+          description: Airport not found.
+
+    put:
+      summary: Update airport details
+      description: This endpoint allows users to update an airport's details.
+      tags:
+        - Airport
+      parameters:
+        - name: airport_id
+          in: path
+          description: Unique identifier for the airport.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                airport_name:
+                  type: string
+                  description: Name of the airport.
+                city:
+                  type: string
+                  description: City where the airport is located.
+                country:
+                  type: string
+                  description: Country where the airport is located.
+                IATA_code:
+                  type: string
+                  description: IATA code for the airport.
+      responses:
+        '200':
+          description: Airport successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airport'
+        '400':
+          description: Invalid airport data.
+        '404':
+          description: Airport not found.
+
+    delete:
+      summary: Delete an airport
+      description: This endpoint allows users to delete an airport by its ID.
+      tags:
+        - Airport
+      parameters:
+        - name: airport_id
+          in: path
+          description: Unique identifier for the airport to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Airport successfully deleted.
+        '404':
+          description: Airport not found.
+
+  /airports/search:
+    get:
+      summary: Search airports
+      description: This endpoint allows users to search and filter airports by city, country, or IATA code.
+      tags:
+        - Airport
+      parameters:
+        - name: city
+          in: query
+          description: Filter airports by city.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: Filter airports by country.
+          required: false
+          schema:
+            type: string
+        - name: IATA_code
+          in: query
+          description: Filter airports by IATA code.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: The page number for pagination.
+          required: false
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: The number of items per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of airports matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of airports matching the criteria.
+                  airports:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Airport'
+        '400':
+          description: Invalid query parameters.
+
+  /airlines:
+    post:
+      summary: Create a new airline
+      description: This endpoint allows users to add a new airline to the system.
+      tags:
+        - Airline
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                airline_name:
+                  type: string
+                  description: Name of the airline.
+                IATA_code:
+                  type: string
+                  description: IATA code for the airline.
+                country:
+                  type: string
+                  description: Country where the airline is registered.
+      responses:
+        '201':
+          description: Airline successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airline'
+        '400':
+          description: Invalid airline data.
+
+  /airlines/{airline_id}:
+    get:
+      summary: Get airline details
+      description: This endpoint retrieves the details of a specific airline by its ID.
+      tags:
+        - Airline
+      parameters:
+        - name: airline_id
+          in: path
+          description: Unique identifier for the airline.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Airline details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airline'
+        '404':
+          description: Airline not found.
+
+    put:
+      summary: Update airline details
+      description: This endpoint allows users to update an airline's details.
+      tags:
+        - Airline
+      parameters:
+        - name: airline_id
+          in: path
+          description: Unique identifier for the airline.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                airline_name:
+                  type: string
+                  description: Name of the airline.
+                IATA_code:
+                  type: string
+                  description: IATA code for the airline.
+                country:
+                  type: string
+                  description: Country where the airline is registered.
+      responses:
+        '200':
+          description: Airline successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Airline'
+        '400':
+          description: Invalid airline data.
+        '404':
+          description: Airline not found.
+
+    delete:
+      summary: Delete an airline
+      description: This endpoint allows users to delete an airline by its ID.
+      tags:
+        - Airline
+      parameters:
+        - name: airline_id
+          in: path
+          description: Unique identifier for the airline to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Airline successfully deleted.
+        '404':
+          description: Airline not found.
+
+  /airlines/search:
+    get:
+      summary: Search airlines
+      description: This endpoint allows users to search and filter airlines by name, country, or IATA code.
+      tags:
+        - Airline
+      parameters:
+        - name: airline_name
+          in: query
+          description: Filter airlines by name.
+          required: false
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: Filter airlines by country.
+          required: false
+          schema:
+            type: string
+        - name: IATA_code
+          in: query
+          description: Filter airlines by IATA code.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: The page number for pagination.
+          required: false
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: The number of items per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of airlines matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of airlines matching the criteria.
+                  airlines:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Airline'
+        '400':
+          description: Invalid query parameters.
+
+  /flightschedules:
+    post:
+      summary: Create a new flight schedule
+      description: This endpoint allows users to add a new flight schedule.
+      tags:
+        - FlightSchedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flight_id:
+                  type: string
+                  description: Flight identifier for the scheduled flight.
+                departure_time:
+                  type: string
+                  format: date-time
+                  description: Scheduled departure time.
+                arrival_time:
+                  type: string
+                  format: date-time
+                  description: Scheduled arrival time.
+                day_of_week:
+                  type: string
+                  description: Day of the week the flight operates (e.g., "Monday", "Tuesday").
+      responses:
+        '201':
+          description: Flight schedule successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightSchedule'
+        '400':
+          description: Invalid flight schedule data.
+
+  /flightschedules/{schedule_id}:
+    get:
+      summary: Get flight schedule details
+      description: This endpoint retrieves the details of a specific flight schedule by its schedule ID.
+      tags:
+        - FlightSchedule
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Unique identifier for the flight schedule.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flight schedule details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightSchedule'
+        '404':
+          description: Flight schedule not found.
+
+    put:
+      summary: Update flight schedule details
+      description: This endpoint allows users to update the details of a flight schedule.
+      tags:
+        - FlightSchedule
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Unique identifier for the flight schedule.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flight_id:
+                  type: string
+                  description: Flight identifier for the scheduled flight.
+                departure_time:
+                  type: string
+                  format: date-time
+                  description: Scheduled departure time.
+                arrival_time:
+                  type: string
+                  format: date-time
+                  description: Scheduled arrival time.
+                day_of_week:
+                  type: string
+                  description: Day of the week the flight operates (e.g., "Monday", "Tuesday").
+      responses:
+        '200':
+          description: Flight schedule successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlightSchedule'
+        '400':
+          description: Invalid flight schedule data.
+        '404':
+          description: Flight schedule not found.
+
+    delete:
+      summary: Delete a flight schedule
+      description: This endpoint allows users to delete a flight schedule by its schedule ID.
+      tags:
+        - FlightSchedule
+      parameters:
+        - name: schedule_id
+          in: path
+          description: Unique identifier for the flight schedule to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Flight schedule successfully deleted.
+        '404':
+          description: Flight schedule not found.
+
+  /flightschedules/flight/{flight_id}:
+    get:
+      summary: Get flight schedules for a specific flight
+      description: This endpoint retrieves all flight schedules for a specific flight by its flight ID.
+      tags:
+        - FlightSchedule
+      parameters:
+        - name: flight_id
+          in: path
+          description: Unique identifier for the flight.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of flight schedules for the specified flight.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightSchedule'
+        '404':
+          description: Flight not found or no schedules available.
+
+  /flightschedules/day/{day_of_week}:
+    get:
+      summary: Get flight schedules for a specific day of the week
+      description: This endpoint retrieves all flight schedules for a specific day of the week.
+      tags:
+        - FlightSchedule
+      parameters:
+        - name: day_of_week
+          in: path
+          description: Day of the week to retrieve flight schedules for (e.g., "Monday").
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of flight schedules for the specified day of the week.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FlightSchedule'
+        '404':
+          description: No flight schedules available for the specified day.
+
+  /flightschedules/search:
+    get:
+      summary: Search flight schedules
+      description: This endpoint allows users to search and filter flight schedules by departure time, arrival time, and day of the week.
+      tags:
+        - FlightSchedule
+      parameters:
+        - name: flight_id
+          in: query
+          description: Filter flight schedules by flight ID.
+          required: false
+          schema:
+            type: string
+        - name: departure_time_from
+          in: query
+          description: Filter flight schedules by departure time starting from this timestamp.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: departure_time_to
+          in: query
+          description: Filter flight schedules by departure time up to this timestamp.
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: day_of_week
+          in: query
+          description: Filter flight schedules by the day of the week.
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: The page number for pagination.
+          required: false
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: The number of items per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of flight schedules matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of flight schedules matching the search criteria.
+                  schedules:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FlightSchedule'
+        '400':
+          description: Invalid query parameters.
+
+  /reviews:
+    post:
+      summary: Create a new review
+      description: This endpoint allows users to add a new review for a flight.
+      tags:
+        - Review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: User identifier for the user who left the review.
+                flight_id:
+                  type: string
+                  description: Flight identifier for the reviewed flight.
+                rating:
+                  type: integer
+                  description: Rating for the flight (e.g., from 1 to 5).
+                comment:
+                  type: string
+                  description: Comment text from the user about the flight.
+      responses:
+        '201':
+          description: Review successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid review data.
+
+  /reviews/{review_id}:
+    get:
+      summary: Get review details
+      description: This endpoint retrieves the details of a specific review by its review ID.
+      tags:
+        - Review
+      parameters:
+        - name: review_id
+          in: path
+          description: Unique identifier for the review.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Review details retrieved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          description: Review not found.
+
+    put:
+      summary: Update review details
+      description: This endpoint allows users to update a review by its review ID.
+      tags:
+        - Review
+      parameters:
+        - name: review_id
+          in: path
+          description: Unique identifier for the review.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: User identifier for the user who left the review.
+                flight_id:
+                  type: string
+                  description: Flight identifier for the reviewed flight.
+                rating:
+                  type: integer
+                  description: Rating for the flight (e.g., from 1 to 5).
+                comment:
+                  type: string
+                  description: Comment text from the user about the flight.
+      responses:
+        '200':
+          description: Review successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid review data.
+        '404':
+          description: Review not found.
+
+    delete:
+      summary: Delete a review
+      description: This endpoint allows users to delete a review by its review ID.
+      tags:
+        - Review
+      parameters:
+        - name: review_id
+          in: path
+          description: Unique identifier for the review to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Review successfully deleted.
+        '404':
+          description: Review not found.
+
+  /reviews/flight/{flight_id}:
+    get:
+      summary: Get all reviews for a specific flight
+      description: This endpoint retrieves all reviews associated with a specific flight by its flight ID.
+      tags:
+        - Review
+      parameters:
+        - name: flight_id
+          in: path
+          description: Flight identifier to get reviews for.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of reviews for the specified flight.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '404':
+          description: Flight not found or no reviews available.
+
+  /reviews/user/{user_id}:
+    get:
+      summary: Get all reviews left by a specific user
+      description: This endpoint retrieves all reviews left by a user for various flights.
+      tags:
+        - Review
+      parameters:
+        - name: user_id
+          in: path
+          description: User identifier to get reviews left by the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of reviews left by the specified user.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        '404':
+          description: User not found or no reviews available.
+
+  /reviews/search:
+    get:
+      summary: Search and filter reviews
+      description: This endpoint allows users to search and filter reviews based on rating, user ID, or flight ID.
+      tags:
+        - Review
+      parameters:
+        - name: flight_id
+          in: query
+          description: Filter reviews by flight ID.
+          required: false
+          schema:
+            type: string
+        - name: user_id
+          in: query
+          description: Filter reviews by user ID.
+          required: false
+          schema:
+            type: string
+        - name: rating
+          in: query
+          description: Filter reviews by rating (e.g., "4" for 4-star reviews).
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: The page number for pagination.
+          required: false
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          description: The number of items per page for pagination.
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of reviews matching the search criteria.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_count:
+                    type: integer
+                    description: Total number of reviews matching the search criteria.
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid query parameters.
+
+components:
+  schemas:
+    # Flight (Flight)
+    Flight:
+      type: object
+      properties:
+        flight_id:
+          type: string
+          description: Unique identifier for the flight.
+        departure_city:
+          type: string
+          description: Departure city.
+        arrival_city:
+          type: string
+          description: Arrival city.
+        departure_date:
+          type: string
+          format: date-time
+          description: Departure date and time.
+        arrival_date:
+          type: string
+          format: date-time
+          description: Arrival date and time.
+        airline:
+          type: string
+          description: Airline operating the flight.
+        price:
+          type: number
+          format: float
+          description: Price of the ticket.
+        available_seats:
+          type: integer
+          description: Number of available seats on the flight.
+        flight_number:
+          type: string
+          description: Flight number.
+        status:
+          type: string
+          description: Status of the flight (e.g., "Departed", "Cancelled", "Delayed").
+          
+    # User (User)
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: Unique identifier for the user.
+        first_name:
+          type: string
+          description: First name of the user.
+        last_name:
+          type: string
+          description: Last name of the user.
+        email:
+          type: string
+          format: email
+          description: Email address of the user.
+        phone_number:
+          type: string
+          description: Phone number of the user.
+        passport_details:
+          type: string
+          description: Passport information (e.g., passport number, issue date).
+        user_type:
+          type: string
+          description: Type of user (e.g., "Regular User", "Administrator").
+
+    # Booking (Booking)
+    Booking:
+      type: object
+      properties:
+        booking_id:
+          type: string
+          description: Unique identifier for the booking.
+        user_id:
+          type: string
+          description: User identifier for the user who made the booking.
+        flight_id:
+          type: string
+          description: Flight identifier for the selected flight.
+        booking_date:
+          type: string
+          format: date-time
+          description: Booking date and time.
+        number_of_passengers:
+          type: integer
+          description: Number of passengers in the booking.
+        total_price:
+          type: number
+          format: float
+          description: Total price for the booking.
+        status:
+          type: string
+          description: Status of the booking (e.g., "Confirmed", "Cancelled", "Pending").
+          
+    # Payment (Payment)
+    Payment:
+      type: object
+      properties:
+        payment_id:
+          type: string
+          description: Unique identifier for the payment.
+        booking_id:
+          type: string
+          description: Booking identifier for the booking that the payment was made for.
+        payment_date:
+          type: string
+          format: date-time
+          description: Payment date and time.
+        amount:
+          type: number
+          format: float
+          description: Amount paid.
+        payment_method:
+          type: string
+          description: Payment method (e.g., "Credit Card", "E-wallet").
+        payment_status:
+          type: string
+          description: Payment status (e.g., "Success", "Failed").
+          
+    # Airport (Airport)
+    Airport:
+      type: object
+      properties:
+        airport_id:
+          type: string
+          description: Unique identifier for the airport.
+        airport_name:
+          type: string
+          description: Name of the airport.
+        city:
+          type: string
+          description: City where the airport is located.
+        country:
+          type: string
+          description: Country where the airport is located.
+        IATA_code:
+          type: string
+          description: IATA code for the airport.
+
+    # Airline (Airline)
+    Airline:
+      type: object
+      properties:
+        airline_id:
+          type: string
+          description: Unique identifier for the airline.
+        airline_name:
+          type: string
+          description: Name of the airline.
+        IATA_code:
+          type: string
+          description: IATA code for the airline.
+        country:
+          type: string
+          description: Country where the airline is registered.
+
+    # FlightSchedule (Flight Schedule)
+    FlightSchedule:
+      type: object
+      properties:
+        schedule_id:
+          type: string
+          description: Unique identifier for the flight schedule.
+        flight_id:
+          type: string
+          description: Flight identifier for the scheduled flight.
+        departure_time:
+          type: string
+          format: date-time
+          description: Scheduled departure time.
+        arrival_time:
+          type: string
+          format: date-time
+          description: Scheduled arrival time.
+        day_of_week:
+          type: string
+          description: Day of the week the flight operates (e.g., "Monday", "Tuesday").
+
+    # Review (Review)
+    Review:
+      type: object
+      properties:
+        review_id:
+          type: string
+          description: Unique identifier for the review.
+        user_id:
+          type: string
+          description: User identifier for the user who left the review.
+        flight_id:
+          type: string
+          description: Flight identifier for the reviewed flight.
+        rating:
+          type: integer
+          description: Rating for the flight (e.g., from 1 to 5).
+        comment:
+          type: string
+          description: Comment text from the user about the flight.
